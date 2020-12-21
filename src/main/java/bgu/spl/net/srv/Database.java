@@ -196,10 +196,30 @@ public class Database {
 		return true;
 	}
 
+	/**
+	 * A private function that sorts the courses by the order they were in the input file
+	 * @param courses
+	 * @return
+	 */
+	private List<Integer> sortCoursesByOrder(List<Integer> courses){
+		Collections.sort(courses, new Comparator<Integer>() {
+			@Override
+			public int compare(Integer course1, Integer course2) {
+				Integer course1Order = coursesByOrder.indexOf(course1);
+				Integer course2Order = coursesByOrder.indexOf(course2);
+				return course1Order.compareTo(course2Order);
+			}
+		});
+		return courses;
+	}
+	// OPCODE - 6
+
 	public List<Integer> getKdamCourses(Integer courseNum){
-		// TODO : implement
-		// need to add the ordering of courses
-		return null;
+		Course course = findCourse(courseNum);
+		List<Integer> kdams = course.getKdamCoursesList();
+		// sort the kdams according to the order of the courses in the input file
+		kdams = sortCoursesByOrder(kdams);
+		return kdams;
 	}
 	// OPCODE - 7
 	public CourseStat getCourseState(Integer courseNum){
@@ -240,9 +260,10 @@ public class Database {
 
 	// OPCODE - 8
 	public List<Integer> getRegisteredCoursesByOrderOfInput(String userName){
-		// TODO : implement
-		// need to think about how to implement the order of the list
-		return null;
+		// TODO : check if we need to check that it is admin who is making all the calls and that he is logged in
+		List<Integer> courses = getCoursesNumbers(coursesOfStudent.get(userName));
+		courses = sortCoursesByOrder(courses);
+		return courses;
 	}
 	// OPCODE - 9
 	public Boolean isRegistered(String userName,Integer courseNum){
@@ -262,10 +283,4 @@ public class Database {
 	public List<Integer> getRegisteredCourses(String userName){
 		return getCoursesNumbers(coursesOfStudent.get(userName));
 	}
-
-
-
-
-
-
 }
