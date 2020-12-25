@@ -1,9 +1,10 @@
 package bgu.spl.net.srv;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
-public class CourseStat {
+public class CourseStat implements Serializable {
     private Integer numOfRegistered;
     private Integer numOfMaxStudents;
     private String courseName;

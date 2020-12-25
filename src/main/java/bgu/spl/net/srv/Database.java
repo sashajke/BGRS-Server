@@ -216,6 +216,8 @@ public class Database {
 
 	public List<Integer> getKdamCourses(Integer courseNum){
 		Course course = findCourse(courseNum);
+		if(course == null)
+			  return null;
 		List<Integer> kdams = course.getKdamCoursesList();
 		// sort the kdams according to the order of the courses in the input file
 		kdams = sortCoursesByOrder(kdams);
