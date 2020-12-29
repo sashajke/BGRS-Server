@@ -131,7 +131,7 @@ public class Database {
 		return false;
 	}
 	// OPCODE - 5
-	public Boolean registerToCourse(String userName,Integer courseNum){
+	public Boolean registerToCourse(String userName,short courseNum){
 		// check if the user exists and that he is logged in and that he is not an admin
 		if(loggedIn.contains(userName) && !admins.contains(userName)){
 			Course course = findCourse(courseNum);
@@ -158,7 +158,7 @@ public class Database {
 	 * @param courseNum
 	 * @return
 	 */
-	private Course findCourse(Integer courseNum){
+	private Course findCourse(short courseNum){
 		Set<Course> Allcourses = studentsInCourse.keySet();
 		for(Course course : Allcourses) {
 			// find the course we want to register the student to
@@ -214,7 +214,7 @@ public class Database {
 	}
 	// OPCODE - 6
 
-	public List<Integer> getKdamCourses(Integer courseNum){
+	public List<Integer> getKdamCourses(short courseNum){
 		Course course = findCourse(courseNum);
 		if(course == null)
 			  return null;
@@ -224,7 +224,7 @@ public class Database {
 		return kdams;
 	}
 	// OPCODE - 7
-	public CourseStat getCourseState(Integer courseNum){
+	public CourseStat getCourseState(short courseNum){
 		String name = getCourseName(courseNum);
 		List<String> registered = getRegisteredStudents(courseNum);
 		Integer max = getNumOfMaxSeats(courseNum);
@@ -237,14 +237,14 @@ public class Database {
 	 * The following 3 function will be used to execute the COURSESTAT message
 	 * each function will get a part of the needed information
 	 */
-	private String getCourseName(Integer courseNum){
+	private String getCourseName(short courseNum){
 		Course course  = findCourse(courseNum);
 		// check if this course exists
 		if(course != null)
 			return course.getCourseName();
 		return null;
 	}
-	private List<String> getRegisteredStudents(Integer courseNum){
+	private List<String> getRegisteredStudents(short courseNum){
 		Course course  = findCourse(courseNum);
 		// check if this course exists
 		if(course != null)
@@ -252,7 +252,7 @@ public class Database {
 
 		return null;
 	}
-	private Integer getNumOfMaxSeats(Integer courseNum){
+	private Integer getNumOfMaxSeats(short courseNum){
 		Course course = findCourse(courseNum);
 		// check if this course exists
 		if(course!= null)
@@ -268,13 +268,13 @@ public class Database {
 		return courses;
 	}
 	// OPCODE - 9
-	public Boolean isRegistered(String userName,Integer courseNum){
+	public Boolean isRegistered(String userName,short courseNum){
 		Course course = findCourse(courseNum);
 		// if the course exists
 		return studentsInCourse.get(course).contains(userName);
 	}
 	// OPCODE - 10
-	public Boolean unregister(String userName,Integer courseNum){
+	public Boolean unregister(String userName,short courseNum){
 		Course course = findCourse(courseNum);
 		Boolean deletedStudentFromCourse = studentsInCourse.get(course).remove(userName);
 		Boolean deletedCourseFromStudentList = coursesOfStudent.get(userName).remove(course);

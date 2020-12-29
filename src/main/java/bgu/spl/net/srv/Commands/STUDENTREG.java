@@ -6,6 +6,7 @@ import bgu.spl.net.srv.Database;
 import java.io.Serializable;
 
 public class STUDENTREG implements Command<Database> {
+    private final short opcode =2;
     private String userName;
     private String password;
     public STUDENTREG(String userName,String password){
@@ -16,7 +17,12 @@ public class STUDENTREG implements Command<Database> {
     public Serializable execute(Database arg) {
         //return arg.studentRegister(userName,password);
         if(arg.studentRegister(userName,password))
-            return new ACK();
-        return new ERR();
+            return new ACK(opcode,"Registered Successfully");
+        return new ERR(opcode);
+    }
+
+    @Override
+    public short getOpCode() {
+        return opcode;
     }
 }

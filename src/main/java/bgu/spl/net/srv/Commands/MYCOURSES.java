@@ -8,13 +8,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MYCOURSES implements Command<Database> {
+    private final short opcode =11;
     private String userName;
-    public MYCOURSES(String userName){
+    @Override
+    public Serializable execute(Database arg) {
+        // TODO : need to create an ACK or ERR message and create the string that represents the courses
+        List<Integer> courses =  arg.getRegisteredCourses(userName);
+        return new ArrayList<>(courses);
+    }
+
+    @Override
+    public short getOpCode() {
+        return opcode;
+    }
+
+    @Override
+    public void AddUserName(String userName) {
         this.userName = userName;
     }
     @Override
-    public Serializable execute(Database arg) {
-        List<Integer> courses =  arg.getRegisteredCourses(userName);
-        return new ArrayList<>(courses);
+    public boolean needUserName() {
+        return true;
     }
 }
