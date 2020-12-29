@@ -1,6 +1,7 @@
 package bgu.spl.net.srv.Commands;
 
 import bgu.spl.net.impl.rci.Command;
+import bgu.spl.net.srv.CourseStat;
 import bgu.spl.net.srv.Database;
 
 import java.io.Serializable;
@@ -13,8 +14,18 @@ public class COURSESTAT implements Command<Database> {
     }
     @Override
     public Serializable execute(Database arg) {
-        // TODO : need to add ACK or ERR here and create the string the represents the course state
-        return arg.getCourseState(courseNum);
+        CourseStat data = arg.getCourseState(courseNum);
+        if(data == null)
+            return new ERR(opcode);
+        String attachment = "Course :(" +courseNum+") " + data.getCourseName() + "\n Seats Available: "+ data.getNumOfRegistered()+"/"+ data.getNumOfMaxStudents() + "\n Students Registered :";
+        String registered = "[";
+        for(int i=0;i<data.getRegisteredStudents().size();i++){
+            registered += data.getRegisteredStudents().get(i) + ", ";
+        }
+        registered = registered.substring(0,registered.length()-1); // remove the last , char
+        registered += "]";
+        attachment += registered;
+        return new ACK(opcode,attachment);
     }
 
     @Override

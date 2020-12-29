@@ -227,6 +227,8 @@ public class Database {
 	public CourseStat getCourseState(short courseNum){
 		String name = getCourseName(courseNum);
 		List<String> registered = getRegisteredStudents(courseNum);
+		if(registered != null)
+			Collections.sort(registered); // sort alphabetically
 		Integer max = getNumOfMaxSeats(courseNum);
 		// check that the courseNum is correct and we got the needed info
 		if(name!=null && registered!= null && max!= null)

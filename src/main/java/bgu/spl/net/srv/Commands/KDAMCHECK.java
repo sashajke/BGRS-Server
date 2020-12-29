@@ -16,9 +16,16 @@ public class KDAMCHECK implements Command<Database> {
     }
     @Override
     public Serializable execute(Database arg) {
-        // TODO : need to create an ACK or ERR and create the string that represents the kdams
         List<Integer> kdams = arg.getKdamCourses(courseNum);
-        return new ArrayList<>(kdams);
+        if(kdams == null)
+            return new ERR(opcode);
+        String courses = "[";
+        for(int i=0;i<kdams.size();i++){
+            courses += kdams.get(i) + ", ";
+        }
+        courses = courses.substring(0,courses.length()-1); // remove the last , char
+        courses += "]";
+        return new ACK(opcode,courses);
     }
 
     @Override

@@ -13,8 +13,16 @@ public class MYCOURSES implements Command<Database> {
     @Override
     public Serializable execute(Database arg) {
         // TODO : need to create an ACK or ERR message and create the string that represents the courses
-        List<Integer> courses =  arg.getRegisteredCourses(userName);
-        return new ArrayList<>(courses);
+        List<Integer> coursesList =  arg.getRegisteredCourses(userName);
+        if(coursesList == null)
+            return new ERR(opcode);
+        String courses = "[";
+        for(int i=0;i<coursesList.size();i++){
+            courses += coursesList.get(i) + ", ";
+        }
+        courses = courses.substring(0,courses.length()-1); // remove the last , char
+        courses += "]";
+        return new ACK(opcode,courses);
     }
 
     @Override

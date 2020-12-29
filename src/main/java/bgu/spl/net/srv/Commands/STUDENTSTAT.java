@@ -16,8 +16,18 @@ public class STUDENTSTAT implements Command<Database> {
     @Override
     public Serializable execute(Database arg) {
         // TODO : need to create an ACK or ERR message and create the string represents the courses
-        List<Integer> courses =  arg.getRegisteredCoursesByOrderOfInput(userName);
-        return new ArrayList<>(courses);
+        List<Integer> coursesList =  arg.getRegisteredCoursesByOrderOfInput(userName);
+        if(coursesList == null)
+            return new ERR(opcode);
+        String attachment = "Student: "+ userName + "\n";
+        String courses = "[";
+        for(int i=0;i<coursesList.size();i++){
+            courses += coursesList.get(i) + ", ";
+        }
+        courses = courses.substring(0,courses.length()-1); // remove the last , char
+        courses += "]";
+        attachment += "Courses : "+ courses;
+        return new ACK(opcode,attachment);
     }
 
     @Override
