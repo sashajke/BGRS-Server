@@ -1,22 +1,20 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-public class STUDENTSTAT implements Command<Database> {
+public class STUDENTSTAT implements Message<Database> {
     private final short opcode =8;
     private String userName;
+    private String nameOfAdmin;
     public STUDENTSTAT(String userName){
         this.userName = userName;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         // TODO : need to create an ACK or ERR message and create the string represents the courses
-        List<Integer> coursesList =  arg.getRegisteredCoursesByOrderOfInput(userName);
+        List<Integer> coursesList =  arg.getRegisteredCoursesByOrderOfInput(userName,nameOfAdmin);
         if(coursesList == null)
             return new ERR(opcode);
         String attachment = "Student: "+ userName + "\n";
@@ -35,4 +33,13 @@ public class STUDENTSTAT implements Command<Database> {
         return opcode;
     }
 
+    @Override
+    public void AddUserName(String userName) {
+        nameOfAdmin = userName;
+    }
+
+    @Override
+    public boolean needUserName() {
+        return true;
+    }
 }

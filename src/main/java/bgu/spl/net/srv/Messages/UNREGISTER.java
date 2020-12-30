@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class UNREGISTER implements Command<Database> {
+public class UNREGISTER implements Message<Database> {
     private final short opcode =10;
     private String userName;
     private short courseNum;
@@ -13,7 +10,7 @@ public class UNREGISTER implements Command<Database> {
         this.courseNum = courseNum;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.unregister(userName,courseNum);
         if(arg.unregister(userName,courseNum))
             return new ACK(opcode,"Unregistered successfully");

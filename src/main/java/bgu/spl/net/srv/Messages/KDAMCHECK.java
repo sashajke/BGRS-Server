@@ -1,13 +1,10 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-public class KDAMCHECK implements Command<Database> {
+public class KDAMCHECK implements Message<Database> {
     private final short opcode =6;
     private short courseNum;
     public KDAMCHECK(short courseNum)
@@ -15,7 +12,7 @@ public class KDAMCHECK implements Command<Database> {
         this.courseNum = courseNum;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         List<Integer> kdams = arg.getKdamCourses(courseNum);
         if(kdams == null)
             return new ERR(opcode);

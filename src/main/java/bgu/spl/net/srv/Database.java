@@ -224,7 +224,9 @@ public class Database {
 		return kdams;
 	}
 	// OPCODE - 7
-	public CourseStat getCourseState(short courseNum){
+	public CourseStat getCourseState(short courseNum,String nameOfAdmin){
+		if(!admins.contains(nameOfAdmin))
+			return null;
 		String name = getCourseName(courseNum);
 		List<String> registered = getRegisteredStudents(courseNum);
 		if(registered != null)
@@ -263,8 +265,9 @@ public class Database {
 	}
 
 	// OPCODE - 8
-	public List<Integer> getRegisteredCoursesByOrderOfInput(String userName){
-		// TODO : check if we need to check that it is admin who is making all the calls and that he is logged in
+	public List<Integer> getRegisteredCoursesByOrderOfInput(String userName,String nameOfAdmin){
+		if(!admins.contains(nameOfAdmin))
+			return null;
 		List<Integer> courses = getCoursesNumbers(coursesOfStudent.get(userName));
 		courses = sortCoursesByOrder(courses);
 		return courses;

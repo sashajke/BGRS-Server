@@ -1,27 +1,25 @@
 package bgu.spl.net.srv;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
-import bgu.spl.net.impl.rci.Command;
-import bgu.spl.net.srv.Commands.*;
+import bgu.spl.net.srv.Messages.*;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Command> {
+public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message> {
     private ByteBuffer opCodeBuf = ByteBuffer.allocate(2);
     private boolean readOpCode = false;
     private MessageType type = null;
     private MessageStructure structure = null;
-    private byte[] firstPart = new byte[1 << 10]; //start with 1k
+    private byte[] firstPart = new byte[1 << 10]; //bytes of part before first zero
     private int firstPartIndex = 0;
-    private byte[] secondPart = new byte[1 << 10]; //start with 1k
+    private byte[] secondPart = new byte[1 << 10]; //bytes of part after first zero
     private int secondPartIndex = 0;
     @Override
-    public Command decodeNextByte(byte nextByte) {
+    public Message decodeNextByte(byte nextByte) {
         if (!readOpCode) { //indicates that we are still reading the opcode
             opCodeBuf.put(nextByte);
             if (!opCodeBuf.hasRemaining()) { //we read 2 bytes and therefore can take the opcode
@@ -30,61 +28,90 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Command>
                 getType();
                 opCodeBuf.clear();
             }
-        } else {
-            if(structure == MessageStructure.TwoBytes){
-                return CreateTwoBytesMessage();
-            }
-            else if(structure == MessageStructure.FourBytes)
+        }
+        else {
+            switch (structure)
             {
-                if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
-                    firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
-                firstPart[firstPartIndex++] = nextByte;
-                if(firstPartIndex == 2) // if the message is 4 bytes including opcode the actual message will be 2 bytes long
-                    return CreateFourBytesMessage();
-            }
-            else if(structure == MessageStructure.OneZero){
-                if(nextByte == '\0') // in this case if we reached zero we are at the end of the message
-                    return CreateOneZeroMessage();
-                if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
-                    firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
-                firstPart[firstPartIndex++] = nextByte;
-            }
-            else
-            {
-                if(nextByte == '\0')
-                {
-                    if (secondPartIndex > 0) // we are in the second 0
-                        return CreateTwoZeroMessage();
-                    else // we reached the first zero so we need to start writing to the second part
+
+                // if the message consists of two bytes
+                case TwoBytes:
+                    return CreateTwoBytesMessage();
+
+                // if the message consists of four bytes
+                case FourBytes:
+                    if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
+                        firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
+                    firstPart[firstPartIndex++] = nextByte;
+                    if(firstPartIndex == 2) // if the message is 4 bytes including opcode the actual message will be 2 bytes long
+                        return CreateFourBytesMessage();
+
+                // if the message consists of one zero
+                case OneZero:
+                    if(nextByte == '\0') // in this case if we reached zero we are at the end of the message
+                        return CreateOneZeroMessage();
+                    if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
+                        firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
+                    firstPart[firstPartIndex++] = nextByte;
+
+                // if the message consists of two zeros
+                case TwoZeros:
+
+                    if(nextByte == '\0')
                     {
-                        if(secondPartIndex >= secondPart.length) // if we reached the end we need to increase length
-                            secondPart = Arrays.copyOf(secondPart,secondPartIndex*2);
-                        secondPart[secondPartIndex++] = nextByte;
+                        if (secondPartIndex > 0) // we are in the second 0
+                            return CreateTwoZeroMessage();
+                        else // we reached the first zero so we need to start writing to the second part
+                        {
+                            if(secondPartIndex >= secondPart.length) // if we reached the end we need to increase length
+                                secondPart = Arrays.copyOf(secondPart,secondPartIndex*2);
+                            secondPart[secondPartIndex++] = nextByte;
+                        }
                     }
-                }
-                else
-                {
-                    if(secondPartIndex > 0) // if we started to write to the second part already
+                    else
                     {
-                        if(secondPartIndex >= secondPart.length) // if we reached the end we need to increase length
-                            secondPart = Arrays.copyOf(secondPart,secondPartIndex*2);
-                        secondPart[secondPartIndex++] = nextByte;
+                        if(secondPartIndex > 0) // if we started to write to the second part already
+                        {
+                            if(secondPartIndex >= secondPart.length) // if we reached the end we need to increase length
+                                secondPart = Arrays.copyOf(secondPart,secondPartIndex*2);
+                            secondPart[secondPartIndex++] = nextByte;
+                        }
+                        else // if we are in the first part
+                        {
+                            if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
+                                firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
+                            firstPart[firstPartIndex++] = nextByte;
+                        }
                     }
-                    else // if we are in the first part
-                    {
-                        if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
-                            firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
-                        firstPart[firstPartIndex++] = nextByte;
-                    }
-                }
             }
         }
         return null;
     }
 
     @Override
-    public byte[] encode(Command message) {
-        return new byte[0];
+    public byte[] encode(Message message) {
+        short opcode = message.getOpCode();
+        short messageOpCode = message.getOpCode();
+        byte[] toReturn;
+        ByteArrayOutputStream stream = new ByteArrayOutputStream(); // will use it to append all the byte buffers
+        try {
+            // add the opcode and the message opcode
+            stream.write(shortToBytes(opcode)); // add opcode
+            stream.write(shortToBytes(messageOpCode)); // add message opcode
+            if (opcode == 12) // ACK message
+            {
+                String attachment = ((ACK) message).getAttachment(); // get the string of the message
+                stream.write(attachment.getBytes()); // add the message
+                byte[] temp = stream.toByteArray();
+                toReturn = Arrays.copyOf(temp,temp.length+1); // add place to the \0 byte
+                toReturn[toReturn.length-1] = '\0'; // add the zero byte to the end of the message
+                return toReturn;
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        toReturn = stream.toByteArray(); // if we got here we simply need to add the opcode and the message opcode because its ERR message
+        return toReturn;
     }
 
     /**
@@ -143,7 +170,7 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Command>
      * private function that creates a message the consists of 2 bytes
      * @return
      */
-    private Command CreateTwoBytesMessage(){
+    private Message CreateTwoBytesMessage(){
         if(type == MessageType.MyCourses)
             return new MYCOURSES();
         else
@@ -154,25 +181,27 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Command>
      * private function that creates a message the consists of 4 bytes
      * @return
      */
-    private Command CreateFourBytesMessage(){
+    private Message CreateFourBytesMessage(){
         short courseNum = bytesToShort(firstPart);
-        if(type == MessageType.CourseReg)
-            return new COURSEREG(courseNum);
-        else if(type == MessageType.KdamCheck)
-            return new KDAMCHECK(courseNum);
-        else if(type == MessageType.CourseStat)
-            return new COURSESTAT(courseNum);
-        else if(type == MessageType.IsRegistered)
-            return new ISREGISTERED(courseNum);
-        else
-            return new UNREGISTER(courseNum);
+        switch (type){
+            case CourseReg:
+                return new COURSEREG(courseNum);
+            case KdamCheck:
+                return new KDAMCHECK(courseNum);
+            case CourseStat:
+                return new COURSESTAT(courseNum);
+            case IsRegistered:
+                return new ISREGISTERED(courseNum);
+            default:
+                return new UNREGISTER(courseNum);
+        }
     }
 
     /**
      * private function that creates a message the consists of a series of bytes and ending with a zero byte
      * @return
      */
-    private Command CreateOneZeroMessage(){
+    private Message CreateOneZeroMessage(){
         String studentUserName = new String(firstPart, 0, firstPartIndex, StandardCharsets.UTF_8);
         return new STUDENTSTAT(studentUserName);
     }
@@ -180,16 +209,24 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Command>
      * private function that creates a message the consists of two parts with a zero byte in between and in the end
      * @return
      */
-    private Command CreateTwoZeroMessage(){
+    private Message CreateTwoZeroMessage(){
         String userName = new String(firstPart, 0, firstPartIndex, StandardCharsets.UTF_8);
         String password = new String(secondPart, 0, secondPartIndex, StandardCharsets.UTF_8);
-        if(type == MessageType.AdminReg)
-            return new ADMINREG(userName,password);
-        else if(type == MessageType.StudentReg)
-            return new STUDENTREG(userName,password);
-        else
-            return new LOGIN(userName,password);
+        switch (type){
+            case AdminReg:
+                return new ADMINREG(userName,password);
+            case StudentReg:
+                return new STUDENTREG(userName,password);
+            default:
+                return new LOGIN(userName,password);
+        }
     }
+
+    /**
+     * Two private function that cast between short and byte array and the other way around
+     * @param arr
+     * @return
+     */
     private short bytesToShort(byte[] arr)
     {
         byte[] opcode = opCodeBuf.array();

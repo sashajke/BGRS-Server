@@ -1,15 +1,12 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class LOGOUT implements Command<Database> {
+public class LOGOUT implements Message<Database> {
     private final short opcode =4;
     private String userName;
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         if(arg.Logout(userName))
             return new ACK(opcode,"Logged out successfully");
         return new ERR(opcode);

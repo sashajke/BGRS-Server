@@ -1,12 +1,9 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
 
-
-public class ADMINREG implements Command<Database> {
+public class ADMINREG implements Message<Database> {
     private final short opcode = 1;
     private String userName;
     private String password;
@@ -15,7 +12,7 @@ public class ADMINREG implements Command<Database> {
         this.password = password;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.adminRegister(userName,password);
         if(arg.adminRegister(userName,password))
             return new ACK(opcode,"Registered Successfully");

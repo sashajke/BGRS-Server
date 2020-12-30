@@ -1,20 +1,18 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.CourseStat;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class COURSESTAT implements Command<Database> {
+public class COURSESTAT implements Message<Database> {
     private final short opcode =7;
     private short courseNum;
+    private String nameOfAdmin;
     public COURSESTAT(short courseNum){
         this.courseNum = courseNum;
     }
     @Override
-    public Serializable execute(Database arg) {
-        CourseStat data = arg.getCourseState(courseNum);
+    public Message execute(Database arg) {
+        CourseStat data = arg.getCourseState(courseNum,nameOfAdmin);
         if(data == null)
             return new ERR(opcode);
         String attachment = "Course :(" +courseNum+") " + data.getCourseName() + "\n Seats Available: "+ data.getNumOfRegistered()+"/"+ data.getNumOfMaxStudents() + "\n Students Registered :";
@@ -31,5 +29,15 @@ public class COURSESTAT implements Command<Database> {
     @Override
     public short getOpCode() {
         return opcode;
+    }
+
+    @Override
+    public void AddUserName(String userName) {
+        nameOfAdmin = userName;
+    }
+
+    @Override
+    public boolean needUserName() {
+        return true;
     }
 }

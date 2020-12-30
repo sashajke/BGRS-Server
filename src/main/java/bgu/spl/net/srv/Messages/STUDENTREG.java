@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class STUDENTREG implements Command<Database> {
+public class STUDENTREG implements Message<Database> {
     private final short opcode =2;
     private String userName;
     private String password;
@@ -14,7 +11,7 @@ public class STUDENTREG implements Command<Database> {
         this.password = password;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.studentRegister(userName,password);
         if(arg.studentRegister(userName,password))
             return new ACK(opcode,"Registered Successfully");

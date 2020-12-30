@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class ACK implements Command<Database> {
+public class ACK implements Message<Database> {
     private final short opcode =12;
     private short messageOpcode;
     private String attachment;
@@ -14,12 +11,19 @@ public class ACK implements Command<Database> {
         this.attachment = attachment;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         return null;
     }
 
     @Override
     public short getOpCode() {
         return opcode;
+    }
+    @Override
+    public short getMessageOpcode() {
+        return messageOpcode;
+    }
+    public String getAttachment(){
+        return attachment;
     }
 }

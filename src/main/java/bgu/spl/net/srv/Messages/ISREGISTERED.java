@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class ISREGISTERED implements Command<Database> {
+public class ISREGISTERED implements Message<Database> {
     private final short opcode =9;
     private String userName;
     private short courseNum;
@@ -13,11 +10,11 @@ public class ISREGISTERED implements Command<Database> {
         this.courseNum = courseNum;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.isRegistered(userName,courseNum);
         if(arg.isRegistered(userName,courseNum))
-            return "REGISTERED";
-        return "NOT REGISTERED";
+            return new ACK(opcode,"REGISTERED");
+        return new ACK(opcode,"NOT REGISTERED");
     }
 
     @Override

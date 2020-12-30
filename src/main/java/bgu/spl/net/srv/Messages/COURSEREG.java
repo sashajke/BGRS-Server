@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class COURSEREG implements Command<Database> {
+public class COURSEREG implements Message<Database> {
     private final short opcode =5;
     private short courseNum;
     private String userName;
@@ -15,7 +12,7 @@ public class COURSEREG implements Command<Database> {
 
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.registerToCourse(userName,courseNum);
         if(arg.registerToCourse(userName,courseNum))
             return new ACK(opcode,"Registered to course : "+ courseNum +" successfully");

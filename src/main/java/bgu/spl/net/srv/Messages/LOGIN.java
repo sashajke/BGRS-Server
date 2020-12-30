@@ -1,11 +1,8 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-
-public class LOGIN implements Command<Database> {
+public class LOGIN implements Message<Database> {
     private final short opcode =3;
     private String userName;
     private String password;
@@ -14,7 +11,7 @@ public class LOGIN implements Command<Database> {
         this.password = password;
     }
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         //return arg.Login(userName,password);
         if(arg.Login(userName,password))
             return new ACK(opcode,"Logged in successfully");
@@ -29,5 +26,8 @@ public class LOGIN implements Command<Database> {
     @Override
     public boolean isLogin() {
         return true;
+    }
+    public String getUserName(){
+        return userName;
     }
 }

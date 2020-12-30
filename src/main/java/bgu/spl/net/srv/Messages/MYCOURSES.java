@@ -1,17 +1,14 @@
-package bgu.spl.net.srv.Commands;
+package bgu.spl.net.srv.Messages;
 
-import bgu.spl.net.impl.rci.Command;
 import bgu.spl.net.srv.Database;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-public class MYCOURSES implements Command<Database> {
+public class MYCOURSES implements Message<Database> {
     private final short opcode =11;
     private String userName;
     @Override
-    public Serializable execute(Database arg) {
+    public Message execute(Database arg) {
         // TODO : need to create an ACK or ERR message and create the string that represents the courses
         List<Integer> coursesList =  arg.getRegisteredCourses(userName);
         if(coursesList == null)
