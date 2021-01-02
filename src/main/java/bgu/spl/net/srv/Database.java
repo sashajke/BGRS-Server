@@ -101,29 +101,35 @@ public class Database {
 	// OPCODE - 1
 	public boolean adminRegister(String userName,String password)
 	{
-		// check if the username and password are valid
-		if(userName != null && password != null){
-			// check if there is already a user with that username
-			if(!registeredUsers.containsKey(userName)){
-				registeredUsers.putIfAbsent(userName, password); // add the admin to the map of all the users
-				admins.add(userName); // add him to the admins list
-				return true;
+		synchronized (userName){
+			// check if the username and password are valid
+			if(userName != null && password != null){
+				// check if there is already a user with that username
+				if(!registeredUsers.containsKey(userName)){
+					registeredUsers.putIfAbsent(userName, password); // add the admin to the map of all the users
+					admins.add(userName); // add him to the admins list
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
+
 	}
 	// OPCODE - 2
 	public boolean studentRegister(String userName,String password){
-		// check if the username and password are valid
-		if(userName != null && password != null){
-			// check if there is already a user with that username
-			if(!registeredUsers.containsKey(userName)){
-				registeredUsers.putIfAbsent(userName, password); // add the student to the registered users
-				coursesOfStudent.putIfAbsent(userName,new Vector<>()); // create new list of courses for the student
-				return true;
+		synchronized (userName){
+			// check if the username and password are valid
+			if(userName != null && password != null){
+				// check if there is already a user with that username
+				if(!registeredUsers.containsKey(userName)){
+					registeredUsers.putIfAbsent(userName, password); // add the student to the registered users
+					coursesOfStudent.putIfAbsent(userName,new Vector<>()); // create new list of courses for the student
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
+
 	}
 	// OPCODE - 3
 	public boolean Login(String userName,String password)
@@ -194,8 +200,10 @@ public class Database {
 	 */
 	private List<Integer> getCoursesNumbers(List<Course> courses){
 		List<Integer> res = new ArrayList<>();
-		for(Course course : courses){
-			res.add(course.getCourseNum());
+		if(courses != null){
+			for(Course course : courses){
+				res.add(course.getCourseNum());
+			}
 		}
 		return res;
 	}
@@ -300,8 +308,14 @@ public class Database {
 	// OPCODE - 10
 	public Boolean unregister(String userName,short courseNum){
 		Course course = findCourse(courseNum);
-		Boolean deletedStudentFromCourse = studentsInCourse.get(course).remove(userName);
-		Boolean deletedCourseFromStudentList = coursesOfStudent.get(userName).remove(course);
+		Boolean deletedStudentFromCourse = false;
+		Boolean deletedCourseFromStudentList = false;
+		if(course != null){
+			if(studentsInCourse.get(course) != null)
+				 deletedStudentFromCourse = studentsInCourse.get(course).remove(userName);
+			if(coursesOfStudent.get(userName) != null)
+				deletedCourseFromStudentList = coursesOfStudent.get(userName).remove(course);
+		}
 		return deletedStudentFromCourse && deletedCourseFromStudentList;
 	}
 
