@@ -55,16 +55,35 @@ public class Database {
 			Scanner myReader = new Scanner(myObj);
 			while (myReader.hasNextLine()) {
 				String courseLine = myReader.nextLine();
-				String[] courseData = courseLine.split("|");
+				if(courseLine.isEmpty())
+					break;
+				String[] courseData = new String[4];
+				int j=0;
+				String part = "";
+				for(int i=0;i<courseLine.length();i++){
+					if(courseLine.charAt(i)== '|'){
+						courseData[j++] = part;
+						part = "";
+					}
+					else
+					{
+						part+= courseLine.charAt(i);
+					}
+				}
+				courseData[j] = part; // add the last part
 				Integer courseNum = Integer.parseInt(courseData[0]);
 				String courseName = courseData[1];
 				// remove the [] from the string
-				String kdams = courseData[2].substring(1,courseData[2].length()-1);
-				// build the list of kdams with Integers
-				String[] kdamsInArray = kdams.split(",");
+				String kdams = courseData[2];
 				List<Integer> kdamsOfCourse = new ArrayList<>();
-				for(int i=0;i<kdamsInArray.length;i++){
-					kdamsOfCourse.add(Integer.parseInt(kdamsInArray[i]));
+				if(!kdams.equals("[]"))
+				{
+					kdams = courseData[2].substring(1,courseData[2].length()-1);
+					String[] kdamsInArray = kdams.split(",");
+					// build the list of kdams with Integers
+					for(int i=0;i<kdamsInArray.length;i++){
+						kdamsOfCourse.add(Integer.parseInt(kdamsInArray[i]));
+					}
 				}
 				Integer numOfMaxStudents = Integer.parseInt(courseData[3]);
 				Course toAdd = new Course(courseNum,courseName,kdamsOfCourse,numOfMaxStudents);
