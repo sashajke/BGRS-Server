@@ -17,11 +17,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class Database {
 
-	private Map<Course,CopyOnWriteArrayList<String>> studentsInCourse; // list of students for each course
-	private Map<String,CopyOnWriteArrayList<Course>> coursesOfStudent; // a list of courses for each student
+	private Map<Course,Vector<String>> studentsInCourse; // list of students for each course
+	private Map<String,Vector<Course>> coursesOfStudent; // a list of courses for each student
 	private Map<String,String> registeredUsers; // username and password for each user(Admin/Student)
-	private List<String> admins; // a list of admins in the system
-	private List<String> loggedIn;// a list of users that are currently logged in
+	private Vector<String> admins; // a list of admins in the system
+	private Vector<String> loggedIn;// a list of users that are currently logged in
 	private List<Integer> coursesByOrder; // a list that is sorted according to the input, used to sort the list of courses we want to return when needed
 
 	// Thread-safe singleton implementation
@@ -33,8 +33,8 @@ public class Database {
 		studentsInCourse = new ConcurrentHashMap<>();
 		coursesOfStudent = new ConcurrentHashMap<>();
 		registeredUsers = new ConcurrentHashMap<>();
-		admins = new CopyOnWriteArrayList<>();
-		loggedIn = new CopyOnWriteArrayList<>();
+		admins = new Vector<>();
+		loggedIn = new Vector<>();
 		coursesByOrder = new ArrayList<>();
 	}
 
@@ -88,7 +88,7 @@ public class Database {
 				Integer numOfMaxStudents = Integer.parseInt(courseData[3]);
 				Course toAdd = new Course(courseNum,courseName,kdamsOfCourse,numOfMaxStudents);
 				coursesByOrder.add(courseNum);
-				studentsInCourse.putIfAbsent(toAdd,new CopyOnWriteArrayList<>());
+				studentsInCourse.putIfAbsent(toAdd,new Vector<>());
 			}
 			myReader.close();
 		} catch (FileNotFoundException e) {
@@ -119,7 +119,7 @@ public class Database {
 			// check if there is already a user with that username
 			if(!registeredUsers.containsKey(userName)){
 				registeredUsers.putIfAbsent(userName, password); // add the student to the registered users
-				coursesOfStudent.putIfAbsent(userName,new CopyOnWriteArrayList<>()); // create new list of courses for the student
+				coursesOfStudent.putIfAbsent(userName,new Vector<>()); // create new list of courses for the student
 				return true;
 			}
 		}
@@ -162,8 +162,8 @@ public class Database {
 					Integer amountOfStudentsInCourse = studentsInCourse.get(course).size();
 					// check if there is room for another student in the course
 					if(amountOfStudentsInCourse < course.getNumOfMaxStudents()){
-						coursesOfStudent.get(userName).addIfAbsent(course); // add the course to the list of the student's courses
-						studentsInCourse.get(course).addIfAbsent(userName); // add the student to the list of students that are registered to this course
+						coursesOfStudent.get(userName).add(course); // add the course to the list of the student's courses
+						studentsInCourse.get(course).add(userName); // add the student to the list of students that are registered to this course
 						return true;
 					}
 				}
