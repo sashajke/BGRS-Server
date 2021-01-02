@@ -15,7 +15,7 @@ public class MYCOURSES implements Message<Database> {
             return new ERR(opcode);
         String courses = "[";
         for(int i=0;i<coursesList.size();i++){
-            courses += coursesList.get(i) + ", ";
+            courses += coursesList.get(i) + ",";
         }
         courses = courses.substring(0,courses.length()-1); // remove the last , char
         courses += "]";

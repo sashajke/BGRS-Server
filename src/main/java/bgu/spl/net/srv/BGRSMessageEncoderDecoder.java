@@ -27,15 +27,14 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
                 readOpCode = true;
                 getType();
                 opCodeBuf.clear();
+                if(structure == MessageStructure.TwoBytes)
+                    return CreateTwoBytesMessage();
+
             }
         }
         else {
             switch (structure)
             {
-
-                // if the message consists of two bytes
-                case TwoBytes:
-                    return CreateTwoBytesMessage();
 
                 // if the message consists of four bytes
                 case FourBytes:
@@ -44,6 +43,7 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
                     firstPart[firstPartIndex++] = nextByte;
                     if(firstPartIndex == 2) // if the message is 4 bytes including opcode the actual message will be 2 bytes long
                         return CreateFourBytesMessage();
+                    break;
 
                 // if the message consists of one zero
                 case OneZero:
@@ -52,6 +52,7 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
                     if(firstPartIndex >= firstPart.length) // if we reached the end we need to increase length
                         firstPart = Arrays.copyOf(firstPart,firstPartIndex*2);
                     firstPart[firstPartIndex++] = nextByte;
+                    break;
 
                 // if the message consists of two zeros
                 case TwoZeros:
@@ -82,6 +83,7 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
                             firstPart[firstPartIndex++] = nextByte;
                         }
                     }
+                    break;
             }
         }
         return null;
@@ -90,7 +92,7 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
     @Override
     public byte[] encode(Message message) {
         short opcode = message.getOpCode();
-        short messageOpCode = message.getOpCode();
+        short messageOpCode = message.getMessageOpcode();
         byte[] toReturn;
         ByteArrayOutputStream stream = new ByteArrayOutputStream(); // will use it to append all the byte buffers
         try {
@@ -171,10 +173,13 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
      * @return
      */
     private Message CreateTwoBytesMessage(){
+        Message toReturn = null;
         if(type == MessageType.MyCourses)
-            return new MYCOURSES();
+            toReturn= new MYCOURSES();
         else
-            return new LOGOUT();
+            toReturn= new LOGOUT();
+        readOpCode = false;
+        return toReturn;
     }
 
     /**
@@ -182,19 +187,29 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
      * @return
      */
     private Message CreateFourBytesMessage(){
+        Message toReturn=null;
         short courseNum = bytesToShort(firstPart);
         switch (type){
             case CourseReg:
-                return new COURSEREG(courseNum);
+                toReturn = new COURSEREG(courseNum);
+                break;
             case KdamCheck:
-                return new KDAMCHECK(courseNum);
+                toReturn = new KDAMCHECK(courseNum);
+                break;
             case CourseStat:
-                return new COURSESTAT(courseNum);
+                toReturn = new COURSESTAT(courseNum);
+                break;
             case IsRegistered:
-                return new ISREGISTERED(courseNum);
+                toReturn = new ISREGISTERED(courseNum);
+                break;
             default:
-                return new UNREGISTER(courseNum);
+                toReturn = new UNREGISTER(courseNum);
+                break;
         }
+        readOpCode = false;
+        firstPart = new byte[1 << 10];
+        firstPartIndex =0;
+        return toReturn;
     }
 
     /**
@@ -203,6 +218,9 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
      */
     private Message CreateOneZeroMessage(){
         String studentUserName = new String(firstPart, 0, firstPartIndex, StandardCharsets.UTF_8);
+        firstPart = new byte[1 << 10];
+        firstPartIndex =0;
+        readOpCode = false;
         return new STUDENTSTAT(studentUserName);
     }
     /**
@@ -212,14 +230,24 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
     private Message CreateTwoZeroMessage(){
         String userName = new String(firstPart, 0, firstPartIndex, StandardCharsets.UTF_8);
         String password = new String(secondPart, 0, secondPartIndex, StandardCharsets.UTF_8);
+        Message toReturn=null;
         switch (type){
             case AdminReg:
-                return new ADMINREG(userName,password);
+                toReturn = new ADMINREG(userName,password);
+                break;
             case StudentReg:
-                return new STUDENTREG(userName,password);
+                toReturn = new STUDENTREG(userName,password);
+                break;
             default:
-                return new LOGIN(userName,password);
+                toReturn = new LOGIN(userName,password);
+                break;
         }
+        readOpCode = false;
+        firstPart = new byte[1 << 10];
+        secondPart = new byte[1 << 10];
+        firstPartIndex = 0;
+        secondPartIndex= 0;
+        return toReturn;
     }
 
     /**
