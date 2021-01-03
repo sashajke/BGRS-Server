@@ -17,7 +17,8 @@ public class MYCOURSES implements Message<Database> {
         for(int i=0;i<coursesList.size();i++){
             courses += coursesList.get(i) + ",";
         }
-        courses = courses.substring(0,courses.length()-1); // remove the last , char
+        if(coursesList.size() > 0)//  if we even added ,
+            courses = courses.substring(0,courses.length()-1); // remove the last , char
         courses += "]";
         return new ACK(opcode,courses);
     }

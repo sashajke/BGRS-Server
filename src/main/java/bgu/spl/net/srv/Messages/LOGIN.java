@@ -14,7 +14,7 @@ public class LOGIN implements Message<Database> {
     public Message execute(Database arg) {
         //return arg.Login(userName,password);
         if(arg.Login(userName,password))
-            return new ACK(opcode,"Logged in successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 

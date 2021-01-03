@@ -14,8 +14,9 @@ public class COURSEREG implements Message<Database> {
     @Override
     public Message execute(Database arg) {
         //return arg.registerToCourse(userName,courseNum);
+        String toReturn = "Registered to course : "+ courseNum +" successfully"; // should add to the ack
         if(arg.registerToCourse(userName,courseNum))
-            return new ACK(opcode,"Registered to course : "+ courseNum +" successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 

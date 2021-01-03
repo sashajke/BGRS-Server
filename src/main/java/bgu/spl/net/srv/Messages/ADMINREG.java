@@ -15,7 +15,7 @@ public class ADMINREG implements Message<Database> {
     public Message execute(Database arg) {
         //return arg.adminRegister(userName,password);
         if(arg.adminRegister(userName,password))
-            return new ACK(opcode,"Registered Successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 

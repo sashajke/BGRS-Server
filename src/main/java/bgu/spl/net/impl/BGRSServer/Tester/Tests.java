@@ -211,7 +211,7 @@ public class Tests implements Runnable {
                         outputs.add(commandsProcessors.get(tempI).sendCommand("LOGIN " + username + " " + username));
                         outputs.add(commandsProcessors.get(tempI).sendCommand("COURSEREG " + p.getCourseNum())); //Shouldn't work since admin
                         outputs.add(commandsProcessors.get(tempI).sendCommand("KDAMCHECK " + p.getCourseNum())); //Shouldn't work since admin
-                        outputs.add(commandsProcessors.get(tempI).sendCommand("MYCOURSES")); //Shouldn't work since admin
+                        outputs.add(commandsProcessors.get(tempI).sendCommand("MYCOURSES ")); //Shouldn't work since admin
                         outputs.add(commandsProcessors.get(tempI).sendCommand("UNREGISTER " + p.getCourseNum())); //Shouldn't work since admin
                         outputs.add(commandsProcessors.get(tempI).sendCommand("ISREGISTERED " + p.getCourseNum()));//Shouldn't work since admin
                         outputs.add(commandsProcessors.get(tempI).sendCommand("LOGOUT"));
@@ -445,6 +445,7 @@ public class Tests implements Runnable {
         String students="Students Registered: "+studentList.toString().replaceAll(" ","");
         CommandProcessor commandProcessorOfAdmin=new CommandProcessor();
         commandProcessorOfAdmin.initialize();
+        commandProcessorOfAdmin.sendCommand("ADMINREG A A");
         commandProcessorOfAdmin.sendCommand("LOGIN A A");
         String output     = commandProcessorOfAdmin.sendCommand("COURSESTAT "+p.getCourseNum());
         String [] tokens  = output.split("\n");

@@ -99,40 +99,40 @@ public class Database {
 		return true;
 	}
 	// OPCODE - 1
-	public boolean adminRegister(String userName,String password)
+	public  boolean adminRegister(String userName,String password)
 	{
-		synchronized (userName){
+
 			// check if the username and password are valid
 			if(userName != null && password != null){
 				// check if there is already a user with that username
 				if(!registeredUsers.containsKey(userName)){
-					registeredUsers.putIfAbsent(userName, password); // add the admin to the map of all the users
+					if(registeredUsers.putIfAbsent(userName, password) != null) // add the admin to the map of all the users
+						return false;
 					admins.add(userName); // add him to the admins list
 					return true;
 				}
 			}
 			return false;
-		}
-
 	}
 	// OPCODE - 2
-	public boolean studentRegister(String userName,String password){
-		synchronized (userName){
+	public  boolean studentRegister(String userName,String password){
 			// check if the username and password are valid
 			if(userName != null && password != null){
 				// check if there is already a user with that username
 				if(!registeredUsers.containsKey(userName)){
-					registeredUsers.putIfAbsent(userName, password); // add the student to the registered users
-					coursesOfStudent.putIfAbsent(userName,new Vector<>()); // create new list of courses for the student
+					if(registeredUsers.putIfAbsent(userName, password) != null) // add the student to the registered users
+						return false;
+					if(coursesOfStudent.putIfAbsent(userName,new Vector<>()) != null) // create new list of courses for the student
+						return false;
 					return true;
 				}
 			}
 			return false;
-		}
+
 
 	}
 	// OPCODE - 3
-	public boolean Login(String userName,String password)
+	public  boolean Login(String userName,String password)
 	{
 		// check if the user exists
 		if(registeredUsers.containsKey(userName)){
@@ -146,7 +146,7 @@ public class Database {
 		return false;
 	}
 	// OPCODE - 4
-	public Boolean Logout(String userName){
+	public  Boolean Logout(String userName){
 		// check if the user is logged in at the moment
 		if(loggedIn.contains(userName))
 		{
@@ -156,7 +156,7 @@ public class Database {
 		return false;
 	}
 	// OPCODE - 5
-	public Boolean registerToCourse(String userName,short courseNum){
+	public  Boolean registerToCourse(String userName,short courseNum){
 		// check if the user exists and that he is logged in and that he is not an admin
 		if(loggedIn.contains(userName) && !admins.contains(userName)){
 			Course course = findCourse(courseNum);
@@ -241,7 +241,9 @@ public class Database {
 	}
 	// OPCODE - 6
 
-	public List<Integer> getKdamCourses(short courseNum){
+	public  List<Integer> getKdamCourses(short courseNum,String userName){
+		if(admins.contains(userName))
+			return null;
 		Course course = findCourse(courseNum);
 		if(course == null)
 			  return null;
@@ -251,7 +253,7 @@ public class Database {
 		return kdams;
 	}
 	// OPCODE - 7
-	public CourseStat getCourseState(short courseNum,String nameOfAdmin){
+	public  CourseStat getCourseState(short courseNum,String nameOfAdmin){
 		if(!admins.contains(nameOfAdmin))
 			return null;
 		String name = getCourseName(courseNum);
@@ -306,7 +308,7 @@ public class Database {
 		return studentsInCourse.get(course).contains(userName);
 	}
 	// OPCODE - 10
-	public Boolean unregister(String userName,short courseNum){
+	public  Boolean unregister(String userName,short courseNum){
 		Course course = findCourse(courseNum);
 		Boolean deletedStudentFromCourse = false;
 		Boolean deletedCourseFromStudentList = false;
@@ -321,6 +323,7 @@ public class Database {
 
 	// OPCODE - 11
 	public List<Integer> getRegisteredCourses(String userName){
+
 		return getCoursesNumbers(coursesOfStudent.get(userName));
 	}
 }

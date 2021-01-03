@@ -19,6 +19,12 @@ public class BGRSProtocol<T> implements MessagingProtocol<Message> {
             if(msg.getOpCode() == 1 || msg.getOpCode() == 2 || msg.getOpCode() == 3)
                 return new ERR(msg.getOpCode());
         }
+        else
+        {
+            // no one is logged in and it's not login or register commands
+            if(msg.getOpCode() != 1 && msg.getOpCode() != 2 && msg.getOpCode() != 3)
+                return new ERR(msg.getOpCode());
+        }
         if(msg.needUserName()) // if we need to add the user name
             msg.AddUserName(userName);
         Message res = msg.execute(arg); // if username is empty then an ERR message will return

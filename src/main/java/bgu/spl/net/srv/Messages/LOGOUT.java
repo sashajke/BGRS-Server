@@ -8,7 +8,7 @@ public class LOGOUT implements Message<Database> {
     @Override
     public Message execute(Database arg) {
         if(arg.Logout(userName))
-            return new ACK(opcode,"Logged out successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 

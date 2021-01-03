@@ -13,7 +13,7 @@ public class UNREGISTER implements Message<Database> {
     public Message execute(Database arg) {
         //return arg.unregister(userName,courseNum);
         if(arg.unregister(userName,courseNum))
-            return new ACK(opcode,"Unregistered successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 

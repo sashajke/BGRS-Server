@@ -11,10 +11,11 @@ public class STUDENTREG implements Message<Database> {
         this.password = password;
     }
     @Override
-    public Message execute(Database arg) {
+    public synchronized Message execute(Database arg) {
         //return arg.studentRegister(userName,password);
+
         if(arg.studentRegister(userName,password))
-            return new ACK(opcode,"Registered Successfully");
+            return new ACK(opcode,"");
         return new ERR(opcode);
     }
 
