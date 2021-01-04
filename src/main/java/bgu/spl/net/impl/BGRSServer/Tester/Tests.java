@@ -1,6 +1,6 @@
 package bgu.spl.net.impl.BGRSServer.Tester;
 
-import bgu.spl.net.srv.BGRSserverMain;
+import bgu.spl.net.impl.BGRSServer.*;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -660,7 +660,7 @@ public class Tests implements Runnable {
 
             System.out.println("Be patient...");
             new Thread(() -> {
-                BGRSserverMain.main(new String[]{"7777"}); //You can change it to reactor also
+                ReactorMain.main(new String[]{"7777","10"}); //You can change it to reactor also
             }).start();
 
             ArrayList<String> testAnswers = new ArrayList<>();

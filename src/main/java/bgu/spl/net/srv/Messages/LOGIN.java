@@ -22,11 +22,6 @@ public class LOGIN implements Message<Database> {
     public short getOpCode() {
         return opcode;
     }
-
-    @Override
-    public boolean isLogin() {
-        return true;
-    }
     public String getUserName(){
         return userName;
     }

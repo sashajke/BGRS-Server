@@ -32,10 +32,6 @@ public class KDAMCHECK implements Message<Database> {
         return opcode;
     }
     @Override
-    public boolean needUserName(){
-        return true;
-    }
-    @Override
     public void AddUserName(String userName)
     {
         this.userName = userName;

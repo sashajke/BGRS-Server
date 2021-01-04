@@ -49,7 +49,7 @@ public class Database {
 	 * loades the courses from the file path specified 
 	 * into the Database, returns true if successful.
 	 */
-	boolean initialize(String coursesFilePath) {
+	public boolean initialize(String coursesFilePath) {
 		try {
 			File myObj = new File(coursesFilePath);
 			Scanner myReader = new Scanner(myObj);
@@ -242,6 +242,7 @@ public class Database {
 	// OPCODE - 6
 
 	public  List<Integer> getKdamCourses(short courseNum,String userName){
+		// if admin calls this function it should not work
 		if(admins.contains(userName))
 			return null;
 		Course course = findCourse(courseNum);
@@ -309,6 +310,9 @@ public class Database {
 	}
 	// OPCODE - 10
 	public  Boolean unregister(String userName,short courseNum){
+		// admin can't register so he can't unregister as well
+		if(admins.contains(userName))
+			return false;
 		Course course = findCourse(courseNum);
 		Boolean deletedStudentFromCourse = false;
 		Boolean deletedCourseFromStudentList = false;
@@ -323,7 +327,9 @@ public class Database {
 
 	// OPCODE - 11
 	public List<Integer> getRegisteredCourses(String userName){
-
+		// admin can't use MyCourses command
+		if(admins.contains(userName))
+			return null;
 		return getCoursesNumbers(coursesOfStudent.get(userName));
 	}
 }

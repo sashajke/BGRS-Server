@@ -37,8 +37,4 @@ public class COURSESTAT implements Message<Database> {
         nameOfAdmin = userName;
     }
 
-    @Override
-    public boolean needUserName() {
-        return true;
-    }
 }

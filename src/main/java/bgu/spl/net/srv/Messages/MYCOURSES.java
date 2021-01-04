@@ -32,8 +32,4 @@ public class MYCOURSES implements Message<Database> {
     public void AddUserName(String userName) {
         this.userName = userName;
     }
-    @Override
-    public boolean needUserName() {
-        return true;
-    }
 }

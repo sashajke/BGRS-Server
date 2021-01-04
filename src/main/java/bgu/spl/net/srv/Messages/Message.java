@@ -4,7 +4,5 @@ public interface Message<T> {
     Message execute(T arg);
     short  getOpCode();
     default void AddUserName(String userName){}
-    default boolean needUserName(){return false;}
-    default boolean isLogin(){return false;}
-    default short getMessageOpcode(){return -1;}
+    default short getMessageOpcode(){return -1;} // for ACK or ERR only , to get the message Opcode, used it in the interface to avoid casting
 }
