@@ -7,7 +7,6 @@ import bgu.spl.net.srv.Server;
 public class ReactorMain {
     public static void main(String[] args) {
         Database database = Database.getInstance();
-        database.initialize("Courses.txt");
         Integer port = Integer.parseInt(args[0]);
         Integer threadNuber = Integer.parseInt(args[1]);
         Server.reactor(

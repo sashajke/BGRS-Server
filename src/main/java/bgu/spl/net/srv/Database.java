@@ -23,6 +23,7 @@ public class Database {
 	private Vector<String> admins; // a list of admins in the system
 	private Vector<String> loggedIn;// a list of users that are currently logged in
 	private List<Integer> coursesByOrder; // a list that is sorted according to the input, used to sort the list of courses we want to return when needed
+	private final String courseFilePath = "./Courses.txt";
 
 	// Thread-safe singleton implementation
 	private static class SingletonHolder{
@@ -36,6 +37,7 @@ public class Database {
 		admins = new Vector<>();
 		loggedIn = new Vector<>();
 		coursesByOrder = new ArrayList<>();
+		initialize(courseFilePath);
 	}
 
 	/**
@@ -49,7 +51,7 @@ public class Database {
 	 * loades the courses from the file path specified 
 	 * into the Database, returns true if successful.
 	 */
-	public boolean initialize(String coursesFilePath) {
+	 boolean initialize(String coursesFilePath) {
 		try {
 			File myObj = new File(coursesFilePath);
 			Scanner myReader = new Scanner(myObj);

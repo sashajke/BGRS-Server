@@ -102,7 +102,8 @@ public class BGRSMessageEncoderDecoder implements MessageEncoderDecoder<Message>
             if (opcode == 12) // ACK message
             {
                 String attachment = ((ACK) message).getAttachment(); // get the string of the message
-                stream.write(attachment.getBytes()); // add the message
+                if(!attachment.isEmpty())
+                    stream.write(attachment.getBytes()); // add the message
                 byte[] temp = stream.toByteArray();
                 toReturn = Arrays.copyOf(temp,temp.length+1); // add place to the \0 byte
                 toReturn[toReturn.length-1] = '\0'; // add the zero byte to the end of the message
